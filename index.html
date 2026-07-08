@@ -1,1 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRE Credit Memo Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:       #0a1628;
+      --navy2:      #1e3a5f;
+      --blue:       #2563eb;
+      --blue-light: #3b82f6;
+      --bg:         #f0f4ff;
+      --card:       #ffffff;
+      --text:       #0f172a;
+      --muted:      #64748b;
+      --border:     #e2e8f0;
+      --green:      #10b981;
+      --green-bg:   #d1fae5;
+      --green-text: #065f46;
+      --yellow:     #f59e0b;
+      --yellow-bg:  #fef3c7;
+      --yellow-text:#92400e;
+      --red:        #ef4444;
+      --red-bg:     #fee2e2;
+      --red-text:   #991b1b;
+      --mono:       'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
+    /* ── HEADER ── */
+    .top-bar {
+      background: var(--navy);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .top-bar-left { display: flex; align-items: center; gap: 14px; }
+    .logo-box {
+      width: 36px; height: 36px;
+      background: var(--blue);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .top-bar h1 { font-size: 17px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+    .top-bar p { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .top-tag {
+      background: rgba(37,99,235,0.25);
+      border: 1px solid rgba(37,99,235,0.4);
+      color: #93c5fd;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 99px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── LAYOUT ── */
+    .shell { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 64px); }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      background: var(--navy);
+      padding: 24px 16px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .panel-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      padding: 0 10px; margin: 12px 0 4px;
+    }
+    .panel-label:first-child { margin-top: 0; }
+
+    /* Property type selector cards */
+    .prop-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; border: 0;
+      background: transparent;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .prop-btn:hover { background: rgba(255,255,255,0.06); }
+    .prop-btn.active {
+      background: rgba(37,99,235,0.18);
+      border-color: rgba(37,99,235,0.45);
+    }
+    .prop-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      background: rgba(255,255,255,0.07);
+    }
+    .prop-btn.active .prop-icon { background: rgba(37,99,235,0.3); }
+    .prop-name { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.65); }
+    .prop-sub  { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .prop-btn.active .prop-name { color: #93c5fd; }
+    .prop-btn.active .prop-sub  { color: rgba(147,197,253,0.6); }
+
+    .left-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 4px; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel { padding: 28px 32px; overflow-y: auto; }
+
+    /* Property type header */
+    .prop-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .prop-header-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+    }
+    .prop-header-text h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+    .prop-header-text p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+    .prop-type-badge {
+      margin-left: auto;
+      background: var(--navy);
+      color: #93c5fd;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 12px; border-radius: 99px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ── LIVE METRIC CARDS ── */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .live-metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .live-metric::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 0 0 14px 14px;
+    }
+    .lm-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .lm-value { font-family: var(--mono); font-size: 22px; font-weight: 600; margin: 6px 0 2px; letter-spacing: -0.5px; }
+    .lm-status { font-size: 11px; font-weight: 600; }
+    .lm-green::after  { background: var(--green); }
+    .lm-yellow::after { background: var(--yellow); }
+    .lm-red::after    { background: var(--red); }
+    .lm-blue::after   { background: var(--blue); }
+    .status-good   { color: var(--green); }
+    .status-warn   { color: var(--yellow); }
+    .status-bad    { color: var(--red); }
+    .status-neutral{ color: var(--muted); }
+
+    /* ── SECTIONS ── */
+    .section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--blue); flex-shrink: 0;
+    }
+
+    /* ── GRID ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    /* ── FORM FIELDS ── */
+    .field label {
+      font-size: 11px; font-weight: 600;
+      color: var(--muted);
+      display: block; margin-bottom: 5px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .field input, .field select {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px; font-family: var(--mono);
+      background: white; color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .field .hint { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+    /* ── RATIO TABLE ── */
+    .ratio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ratio-table th {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--muted); text-align: left;
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .ratio-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .ratio-table tr:last-child td { border-bottom: none; }
+    .ratio-name  { font-weight: 600; color: var(--text); }
+    .ratio-value { font-family: var(--mono); font-weight: 600; font-size: 14px; }
+    .ratio-bench { color: var(--muted); font-size: 12px; }
+    .badge {
+      display: inline-block; padding: 3px 9px;
+      border-radius: 99px; font-size: 11px; font-weight: 700;
+    }
+    .badge-green  { background: var(--green-bg);  color: var(--green-text); }
+    .badge-yellow { background: var(--yellow-bg); color: var(--yellow-text); }
+    .badge-red    { background: var(--red-bg);    color: var(--red-text); }
+    .badge-grey   { background: #f1f5f9; color: var(--muted); }
+
+    /* ── GENERATE BUTTON ── */
+    .gen-row { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--blue), #4f46e5);
+      color: white; border: 0;
+      padding: 12px 22px; border-radius: 10px;
+      font-weight: 700; font-size: 14px; font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; color: var(--text);
+      border: 1.5px solid var(--border);
+      padding: 12px 20px; border-radius: 10px;
+      font-weight: 600; font-size: 14px; font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── MEMO OUTPUT ── */
+    .memo-wrap {
+      background: var(--navy);
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .memo-placeholder {
+      color: rgba(255,255,255,0.25);
+      font-size: 13px; text-align: center;
+      padding: 28px 0;
+    }
+    .memo-paper {
+      background: white; border-radius: 10px;
+      padding: 28px; line-height: 1.6;
+    }
+    .memo-paper h1 {
+      font-size: 18px; font-weight: 800;
+      text-align: center; text-decoration: underline;
+      margin-bottom: 20px; color: var(--navy);
+    }
+    .memo-paper h2 {
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 5px; margin: 18px 0 10px;
+      color: var(--navy);
+    }
+    .memo-paper table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 13px; }
+    .memo-paper th, .memo-paper td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+    .memo-paper th { background: #f8fafc; font-weight: 700; }
+
+    /* ── TOOLTIP ── */
+    .info-tip {
+      display: inline-block; width: 16px; height: 16px;
+      background: #e2e8f0; border-radius: 50%;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-align: center; line-height: 16px;
+      cursor: help; flex-shrink: 0;
+    }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .metric-strip { grid-template-columns: repeat(2,1fr); }
+      .grid3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .metric-strip { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="logo-box">🏗️</div>
+    <div>
+      <h1>CRE Credit Memo Tool</h1>
+      <p>Commercial Real Estate Underwriting · Ratio Analysis · Memo Generator</p>
+    </div>
+  </div>
+  <div class="top-tag">DEMO</div>
+</div>
+
+<div class="shell">
+
+  <!-- ═══ LEFT: Property Type Selector ═══ -->
+  <div class="left-panel">
+    <div class="panel-label">Select Property Type</div>
+
+    <button class="prop-btn active" onclick="setType('apartment')">
+      <div class="prop-icon">🏠</div>
+      <div>
+        <div class="prop-name">Multifamily / Apartment</div>
+        <div class="prop-sub">5+ units · Residential rental</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" onclick="setType('office')">
+      <div class="prop-icon">🏢</div>
+      <div>
+        <div class="prop-name">Office</div>
+        <div class="prop-sub">Class A / B / C · CBD or suburban</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" onclick="setType('retail')">
+      <div class="prop-icon">🛍️</div>
+      <div>
+        <div class="prop-name">Retail / Strip Mall</div>
+        <div class="prop-sub">Anchored or unanchored</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" onclick="setType('industrial')">
+      <div class="prop-icon">🏭</div>
+      <div>
+        <div class="prop-name">Industrial / Warehouse</div>
+        <div class="prop-sub">Flex · Distribution · Cold storage</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" onclick="setType('hotel')">
+      <div class="prop-icon">🏨</div>
+      <div>
+        <div class="prop-name">Hospitality / Hotel</div>
+        <div class="prop-sub">Full-service · Limited-service · Motel</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" onclick="setType('mixed')">
+      <div class="prop-icon">🏙️</div>
+      <div>
+        <div class="prop-name">Mixed-Use</div>
+        <div class="prop-sub">Residential + retail + office</div>
+      </div>
+    </button>
+
+    <div class="left-divider"></div>
+    <div class="panel-label">Coming Soon</div>
+
+    <button class="prop-btn" style="opacity:0.4;cursor:not-allowed;">
+      <div class="prop-icon">🏥</div>
+      <div>
+        <div class="prop-name">Healthcare / Medical</div>
+        <div class="prop-sub">MOB · Skilled nursing · Senior</div>
+      </div>
+    </button>
+
+    <button class="prop-btn" style="opacity:0.4;cursor:not-allowed;">
+      <div class="prop-icon">⛽</div>
+      <div>
+        <div class="prop-name">Self-Storage</div>
+        <div class="prop-sub">Climate-controlled · Drive-up</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- ═══ RIGHT: Dynamic Content Panel ═══ -->
+  <div class="right-panel" id="rightPanel">
+    <!-- Populated by JS -->
+  </div>
+
+</div>
+
+<script>
+
+const TYPES = {
+
+  apartment: {
+    icon: '🏠',
+    name: 'Multifamily / Apartment',
+    desc: 'Residential income property — 5+ units. Key metrics focus on occupancy, rent roll, and unit economics.',
+    badge: 'MULTIFAMILY',
+    benchmarks: [
+      { name: 'DSCR',             field: 'dscr',       bench: '≥ 1.20x',  good: v => v >= 1.20, warn: v => v >= 1.10 },
+      { name: 'LTV',              field: 'ltv',        bench: '≤ 75%',    good: v => v <= 75,   warn: v => v <= 80  },
+      { name: 'Cap Rate',         field: 'capRate',    bench: '4.5%–7%',  good: v => v >= 4.5 && v <= 8, warn: v => v >= 3.5 },
+      { name: 'Debt Yield',       field: 'debtYield',  bench: '≥ 6.5%',   good: v => v >= 6.5,  warn: v => v >= 5.5 },
+      { name: 'Break-Even Occ.',  field: 'breakeven',  bench: '≤ 85%',    good: v => v <= 85,   warn: v => v <= 90  },
+      { name: 'Price / Unit',     field: 'priceUnit',  bench: 'Market-specific', good: null, warn: null },
+    ],
+    inputs: {
+      property: [
+        { id: 'units',       label: 'Number of Units',          type: 'number', placeholder: '48',     hint: 'Total rentable units' },
+        { id: 'avgRent',     label: 'Average Rent / Unit / Mo', type: 'number', placeholder: '1850',   hint: 'Current in-place average rent' },
+        { id: 'marketRent',  label: 'Market Rent / Unit / Mo',  type: 'number', placeholder: '2000',   hint: 'Comparable market rent' },
+        { id: 'occupancy',   label: 'Physical Occupancy (%)',    type: 'number', placeholder: '94',     hint: 'Current % of units occupied' },
+        { id: 'year',        label: 'Year Built',                type: 'number', placeholder: '1998',   hint: '' },
+        { id: 'sqft',        label: 'Total Rentable SF',         type: 'number', placeholder: '42000',  hint: 'Net rentable area' },
+      ],
+      income: [
+        { id: 'gpi',        label: 'Gross Potential Income ($/yr)', type: 'number', placeholder: '1065600', hint: 'Units × avg rent × 12' },
+        { id: 'vacancy',    label: 'Vacancy & Credit Loss (%)',     type: 'number', placeholder: '6',       hint: 'Typical 5–10% for MF' },
+        { id: 'otherInc',   label: 'Other Income ($/yr)',           type: 'number', placeholder: '24000',   hint: 'Parking, laundry, pet fees' },
+        { id: 'expenses',   label: 'Operating Expenses ($/yr)',     type: 'number', placeholder: '320000',  hint: '35–45% of EGI is typical' },
+        { id: 'reserves',   label: 'Replacement Reserves ($/yr)',   type: 'number', placeholder: '24000',   hint: '$500/unit/yr is standard' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '8500000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '6000000', hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '380000',  hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '6.75',    hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',      hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '30',      hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'Rent / SF / Mo',    formula: (d) => d.avgRent && d.sqft && d.units ? '$ ' + (d.avgRent * d.units / d.sqft).toFixed(2) : '—' },
+      { label: 'Expense Ratio',      formula: (d) => d.expenses && d.gpi ? ((d.expenses / d.gpi) * 100).toFixed(1) + '%' : '—' },
+      { label: 'Price / Unit',       formula: (d) => d.purchasePrice && d.units ? '$ ' + Math.round(d.purchasePrice / d.units).toLocaleString() : '—' },
+      { label: 'GRM',                formula: (d) => d.purchasePrice && d.gpi ? (d.purchasePrice / d.gpi).toFixed(2) + 'x' : '—', tip: 'Gross Rent Multiplier — lower is better' },
+    ]
+  },
+
+  office: {
+    icon: '🏢',
+    name: 'Office',
+    desc: 'Commercial office property. Key risks include lease rollover, tenant concentration, and market vacancy trends.',
+    badge: 'OFFICE',
+    benchmarks: [
+      { name: 'DSCR',              field: 'dscr',      bench: '≥ 1.25x', good: v => v >= 1.25, warn: v => v >= 1.15 },
+      { name: 'LTV',               field: 'ltv',       bench: '≤ 70%',   good: v => v <= 70,   warn: v => v <= 75  },
+      { name: 'Cap Rate',          field: 'capRate',   bench: '5.5%–8%', good: v => v >= 5.5,  warn: v => v >= 4.5 },
+      { name: 'Debt Yield',        field: 'debtYield', bench: '≥ 8%',    good: v => v >= 8.0,  warn: v => v >= 6.5 },
+      { name: 'Occupancy',         field: 'occupancy', bench: '≥ 85%',   good: v => v >= 85,   warn: v => v >= 75  },
+      { name: 'WALT (years)',       field: 'walt',      bench: '≥ 3 yrs', good: v => v >= 3,    warn: v => v >= 1.5 },
+    ],
+    inputs: {
+      property: [
+        { id: 'sqft',       label: 'Rentable SF (Total)',        type: 'number', placeholder: '85000',   hint: 'Net rentable area (NRA)' },
+        { id: 'occupancy',  label: 'Physical Occupancy (%)',     type: 'number', placeholder: '87',      hint: 'Current % of NRA leased' },
+        { id: 'baseRent',   label: 'Avg Base Rent / SF / Yr',   type: 'number', placeholder: '32',      hint: 'Weighted avg in-place rent PSF' },
+        { id: 'marketRent', label: 'Market Rent / SF / Yr',     type: 'number', placeholder: '35',      hint: 'Comparable submarket rent' },
+        { id: 'class',      label: 'Building Class',             type: 'select', options: ['Class A','Class B','Class C'], hint: '' },
+        { id: 'walt',       label: 'WALT (years)',               type: 'number', placeholder: '4.2',    hint: 'Weighted avg lease term remaining' },
+      ],
+      income: [
+        { id: 'gpi',         label: 'Gross Potential Income ($/yr)', type: 'number', placeholder: '2720000', hint: 'NRA × avg rent' },
+        { id: 'vacancy',     label: 'Vacancy & Credit Loss (%)',     type: 'number', placeholder: '13',      hint: 'Physical + economic vacancy' },
+        { id: 'recov',       label: 'Tenant Recoveries / CAM ($/yr)',type: 'number', placeholder: '340000',  hint: 'NNN expense reimbursements' },
+        { id: 'expenses',    label: 'Operating Expenses ($/yr)',      type: 'number', placeholder: '680000',  hint: 'Mgmt, insurance, RE tax, utilities' },
+        { id: 'tiLC',        label: 'TI & Leasing Commissions ($/yr)',type: 'number', placeholder: '120000',  hint: 'Annualized TI allowances + LC' },
+        { id: 'reserves',    label: 'Capital Reserves ($/yr)',        type: 'number', placeholder: '85000',   hint: '$1/SF/yr is standard for office' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '18000000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '12600000', hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '900000',   hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.25',     hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'EGI / SF',          formula: (d) => d.sqft ? '$ ' + ((calcEGI(d)) / d.sqft).toFixed(2) : '—' },
+      { label: 'Expense Ratio',      formula: (d) => d.expenses && d.gpi ? ((d.expenses / d.gpi) * 100).toFixed(1) + '%' : '—' },
+      { label: 'Price / SF',         formula: (d) => d.purchasePrice && d.sqft ? '$ ' + (d.purchasePrice / d.sqft).toFixed(0) : '—' },
+      { label: 'Break-Even Occ.',    formula: (d) => d.gpi && d.expenses && d.annualDS ? ((( parseFloat(d.expenses||0) + parseFloat(d.annualDS||0)) / d.gpi) * 100).toFixed(1) + '%' : '—' },
+    ]
+  },
+
+  retail: {
+    icon: '🛍️',
+    name: 'Retail / Strip Mall',
+    desc: 'Retail income property. Anchor tenants, lease structure (NNN vs Gross), and e-commerce risk are key underwriting factors.',
+    badge: 'RETAIL',
+    benchmarks: [
+      { name: 'DSCR',              field: 'dscr',       bench: '≥ 1.30x', good: v => v >= 1.30, warn: v => v >= 1.20 },
+      { name: 'LTV',               field: 'ltv',        bench: '≤ 65%',   good: v => v <= 65,   warn: v => v <= 70  },
+      { name: 'Cap Rate',          field: 'capRate',    bench: '5.5%–9%', good: v => v >= 5.5,  warn: v => v >= 4.5 },
+      { name: 'Debt Yield',        field: 'debtYield',  bench: '≥ 9%',    good: v => v >= 9.0,  warn: v => v >= 7.5 },
+      { name: 'Anchor Tenant %',   field: 'anchorPct',  bench: '≥ 40% NRA', good: v => v >= 40, warn: v => v >= 25 },
+      { name: 'WALT (years)',       field: 'walt',       bench: '≥ 4 yrs', good: v => v >= 4,    warn: v => v >= 2   },
+    ],
+    inputs: {
+      property: [
+        { id: 'sqft',       label: 'Total GLA (SF)',             type: 'number', placeholder: '65000',   hint: 'Gross leasable area' },
+        { id: 'occupancy',  label: 'Physical Occupancy (%)',     type: 'number', placeholder: '92',      hint: 'Current % of GLA leased' },
+        { id: 'anchorPct',  label: 'Anchor Tenant % of GLA',    type: 'number', placeholder: '45',      hint: 'Grocery / big-box anchor % of total' },
+        { id: 'baseRent',   label: 'Avg Base Rent / SF / Yr',   type: 'number', placeholder: '22',      hint: 'Weighted avg in-place rent PSF' },
+        { id: 'leaseType',  label: 'Primary Lease Structure',    type: 'select', options: ['NNN','NN','Gross','Modified Gross'], hint: '' },
+        { id: 'walt',       label: 'WALT (years)',               type: 'number', placeholder: '5.1',    hint: 'Weighted avg lease term remaining' },
+      ],
+      income: [
+        { id: 'gpi',         label: 'Gross Potential Income ($/yr)', type: 'number', placeholder: '1430000', hint: 'GLA × avg rent' },
+        { id: 'vacancy',     label: 'Vacancy & Credit Loss (%)',     type: 'number', placeholder: '8',       hint: 'Physical + downtime + credit loss' },
+        { id: 'recov',       label: 'CAM / NNN Recoveries ($/yr)',   type: 'number', placeholder: '390000',  hint: 'Expense reimbursements from tenants' },
+        { id: 'pctRent',     label: 'Percentage Rent ($/yr)',        type: 'number', placeholder: '18000',   hint: 'Overage rent above breakpoint' },
+        { id: 'expenses',    label: 'Operating Expenses ($/yr)',      type: 'number', placeholder: '520000',  hint: 'Landlord-responsible expenses' },
+        { id: 'reserves',    label: 'Capital Reserves ($/yr)',        type: 'number', placeholder: '65000',   hint: '$1/SF/yr typical' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '12500000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '8125000',  hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '620000',   hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.50',     hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'Price / SF',     formula: (d) => d.purchasePrice && d.sqft ? '$ ' + (d.purchasePrice / d.sqft).toFixed(0) : '—' },
+      { label: 'Rent / SF / Yr', formula: (d) => d.baseRent ? '$ ' + parseFloat(d.baseRent).toFixed(2) : '—' },
+      { label: 'Expense Ratio',  formula: (d) => d.expenses && d.gpi ? ((d.expenses / d.gpi) * 100).toFixed(1) + '%' : '—' },
+      { label: 'Recovery Ratio', formula: (d) => d.recov && d.expenses ? ((d.recov / d.expenses) * 100).toFixed(0) + '%' : '—', tip: '% of expenses recovered from tenants' },
+    ]
+  },
+
+  industrial: {
+    icon: '🏭',
+    name: 'Industrial / Warehouse',
+    desc: 'Industrial property — one of the strongest CRE asset classes. E-commerce tailwinds drive low vacancy and rent growth.',
+    badge: 'INDUSTRIAL',
+    benchmarks: [
+      { name: 'DSCR',             field: 'dscr',       bench: '≥ 1.20x', good: v => v >= 1.20, warn: v => v >= 1.10 },
+      { name: 'LTV',              field: 'ltv',        bench: '≤ 70%',   good: v => v <= 70,   warn: v => v <= 75  },
+      { name: 'Cap Rate',         field: 'capRate',    bench: '4.5%–7%', good: v => v >= 4.5,  warn: v => v >= 3.5 },
+      { name: 'Debt Yield',       field: 'debtYield',  bench: '≥ 7%',    good: v => v >= 7.0,  warn: v => v >= 5.5 },
+      { name: 'Clear Height (ft)',field: 'clearHt',    bench: '≥ 28 ft', good: v => v >= 28,   warn: v => v >= 22  },
+      { name: 'WALT (years)',     field: 'walt',       bench: '≥ 3 yrs', good: v => v >= 3,    warn: v => v >= 1.5 },
+    ],
+    inputs: {
+      property: [
+        { id: 'sqft',       label: 'Total Rentable SF',          type: 'number', placeholder: '250000',  hint: 'Net rentable warehouse / flex area' },
+        { id: 'officeRatio',label: 'Office Buildout (%)',         type: 'number', placeholder: '10',      hint: '% of total SF that is office space' },
+        { id: 'clearHt',    label: 'Clear Height (ft)',           type: 'number', placeholder: '32',      hint: 'Min clear height in warehouse bay' },
+        { id: 'dockDoors',  label: 'Dock-High Doors',            type: 'number', placeholder: '24',      hint: 'Total dock-high loading doors' },
+        { id: 'driveIn',    label: 'Drive-In Doors',             type: 'number', placeholder: '4',       hint: 'Grade-level drive-in doors' },
+        { id: 'occupancy',  label: 'Occupancy (%)',              type: 'number', placeholder: '100',     hint: 'Current occupancy rate' },
+        { id: 'baseRent',   label: 'Avg Base Rent / SF / Yr',   type: 'number', placeholder: '11.50',   hint: 'NNN weighted avg in-place rent' },
+        { id: 'walt',       label: 'WALT (years)',               type: 'number', placeholder: '6.0',    hint: 'Weighted avg lease term remaining' },
+      ],
+      income: [
+        { id: 'gpi',      label: 'Gross Potential Income ($/yr)', type: 'number', placeholder: '2875000', hint: 'SF × rent PSF' },
+        { id: 'vacancy',  label: 'Vacancy & Credit Loss (%)',     type: 'number', placeholder: '3',       hint: 'Industrial vacancy often 2–5%' },
+        { id: 'recov',    label: 'NNN Recoveries ($/yr)',          type: 'number', placeholder: '500000',  hint: 'Tax, insurance, CAM reimbursements' },
+        { id: 'expenses', label: 'Landlord Operating Exp ($/yr)', type: 'number', placeholder: '125000',  hint: 'Low for NNN — mostly roof/structure' },
+        { id: 'reserves', label: 'Replacement Reserves ($/yr)',   type: 'number', placeholder: '125000',  hint: '$0.50/SF/yr typical for industrial' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '35000000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '24500000', hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '1750000',  hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '6.90',     hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'Price / SF',         formula: (d) => d.purchasePrice && d.sqft ? '$ ' + (d.purchasePrice / d.sqft).toFixed(2) : '—' },
+      { label: 'Rent / SF / Yr',     formula: (d) => d.baseRent ? '$ ' + parseFloat(d.baseRent).toFixed(2) : '—' },
+      { label: 'Dock Door Ratio',    formula: (d) => d.sqft && d.dockDoors ? '1 per ' + Math.round(d.sqft / d.dockDoors).toLocaleString() + ' SF' : '—', tip: '1 door per 5,000–10,000 SF is typical' },
+      { label: 'Office %',           formula: (d) => d.officeRatio ? d.officeRatio + '%' : '—' },
+    ]
+  },
+
+  hotel: {
+    icon: '🏨',
+    name: 'Hospitality / Hotel',
+    desc: 'Hotel properties use revenue-per-room metrics. Higher risk than other CRE types — income is highly operational and cyclical.',
+    badge: 'HOSPITALITY',
+    benchmarks: [
+      { name: 'DSCR',       field: 'dscr',       bench: '≥ 1.35x', good: v => v >= 1.35, warn: v => v >= 1.20 },
+      { name: 'LTV',        field: 'ltv',        bench: '≤ 60%',   good: v => v <= 60,   warn: v => v <= 65  },
+      { name: 'Cap Rate',   field: 'capRate',    bench: '6%–9%',   good: v => v >= 6.0,  warn: v => v >= 5.0 },
+      { name: 'Debt Yield', field: 'debtYield',  bench: '≥ 10%',   good: v => v >= 10.0, warn: v => v >= 8.5 },
+      { name: 'Occ. Rate',  field: 'occupancy',  bench: '≥ 65%',   good: v => v >= 65,   warn: v => v >= 55  },
+      { name: 'RevPAR',     field: 'revpar',     bench: 'Market comp', good: null, warn: null },
+    ],
+    inputs: {
+      property: [
+        { id: 'rooms',      label: 'Number of Keys / Rooms',    type: 'number', placeholder: '180',     hint: 'Total available hotel rooms' },
+        { id: 'occupancy',  label: 'Occupancy Rate (%)',        type: 'number', placeholder: '68',      hint: 'Trailing 12-month avg occupancy' },
+        { id: 'adr',        label: 'ADR ($/night)',             type: 'number', placeholder: '185',     hint: 'Average daily rate' },
+        { id: 'flag',       label: 'Brand / Flag',             type: 'select', options: ['Franchise — Full-Service','Franchise — Limited-Service','Independent','Boutique'], hint: '' },
+        { id: 'year',       label: 'Year Built / Renovated',   type: 'number', placeholder: '2010',    hint: '' },
+        { id: 'ffePct',     label: 'FF&E Reserve (% of Rev.)', type: 'number', placeholder: '4',       hint: '4% of total revenue is standard' },
+      ],
+      income: [
+        { id: 'roomRev',    label: 'Room Revenue ($/yr)',        type: 'number', placeholder: '8185800', hint: 'Rooms × occ% × ADR × 365' },
+        { id: 'otherRev',   label: 'F&B + Other Revenue ($/yr)', type: 'number', placeholder: '1200000', hint: 'Food, beverage, spa, parking' },
+        { id: 'gop',        label: 'GOP (Gross Oper. Profit $)', type: 'number', placeholder: '3200000', hint: 'Revenue minus dept. expenses' },
+        { id: 'mgmtFee',    label: 'Management Fee (% of Rev.)', type: 'number', placeholder: '3',       hint: 'Typically 2–5% of gross revenue' },
+        { id: 'noi',        label: 'Net Operating Income ($/yr)',type: 'number', placeholder: '2400000', hint: 'NOI after all expenses including FF&E' },
+        { id: 'reserves',   label: 'FF&E Reserve ($/yr)',        type: 'number', placeholder: '373032',  hint: '4% of total revenue' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '24000000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '14400000', hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '1100000',  hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.75',     hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'RevPAR',          formula: (d) => d.adr && d.occupancy ? '$ ' + (d.adr * d.occupancy / 100).toFixed(2) : '—', tip: 'ADR × Occupancy %' },
+      { label: 'Price / Key',     formula: (d) => d.purchasePrice && d.rooms ? '$ ' + Math.round(d.purchasePrice / d.rooms).toLocaleString() : '—' },
+      { label: 'NOI / Key',       formula: (d) => d.noi && d.rooms ? '$ ' + Math.round(d.noi / d.rooms).toLocaleString() : '—' },
+      { label: 'GOP Margin',      formula: (d) => d.gop && d.roomRev && d.otherRev ? ((d.gop / (parseFloat(d.roomRev||0) + parseFloat(d.otherRev||0))) * 100).toFixed(1) + '%' : '—', tip: 'GOP ÷ Total Revenue' },
+    ]
+  },
+
+  mixed: {
+    icon: '🏙️',
+    name: 'Mixed-Use',
+    desc: 'Mixed-use properties combine multiple uses (residential + retail + office). Underwrite each component separately then consolidate.',
+    badge: 'MIXED-USE',
+    benchmarks: [
+      { name: 'DSCR',              field: 'dscr',       bench: '≥ 1.25x', good: v => v >= 1.25, warn: v => v >= 1.15 },
+      { name: 'LTV',               field: 'ltv',        bench: '≤ 70%',   good: v => v <= 70,   warn: v => v <= 75  },
+      { name: 'Cap Rate (Blended)',field: 'capRate',    bench: '4.5%–7.5%', good: v => v >= 4.5 && v <= 8, warn: v => v >= 3.5 },
+      { name: 'Debt Yield',        field: 'debtYield',  bench: '≥ 7%',    good: v => v >= 7.0,  warn: v => v >= 6.0 },
+      { name: 'Resi Occ.',         field: 'occupancy',  bench: '≥ 90%',   good: v => v >= 90,   warn: v => v >= 85  },
+      { name: 'Retail Occ.',       field: 'retailOcc',  bench: '≥ 80%',   good: v => v >= 80,   warn: v => v >= 70  },
+    ],
+    inputs: {
+      property: [
+        { id: 'resiUnits',   label: 'Residential Units',          type: 'number', placeholder: '72',      hint: 'Number of apartment units' },
+        { id: 'resiRent',    label: 'Avg Residential Rent / Mo',  type: 'number', placeholder: '2200',    hint: 'Average monthly rent per unit' },
+        { id: 'occupancy',   label: 'Residential Occupancy (%)',  type: 'number', placeholder: '95',      hint: '' },
+        { id: 'retailSF',    label: 'Retail / Commercial SF',     type: 'number', placeholder: '8500',    hint: 'Ground floor retail GLA' },
+        { id: 'retailRent',  label: 'Retail Rent / SF / Yr',     type: 'number', placeholder: '38',      hint: 'Weighted avg retail rent PSF' },
+        { id: 'retailOcc',   label: 'Retail Occupancy (%)',       type: 'number', placeholder: '88',      hint: '' },
+      ],
+      income: [
+        { id: 'resiNOI',    label: 'Residential NOI ($/yr)',      type: 'number', placeholder: '1620000', hint: 'Resi EGI minus resi expenses' },
+        { id: 'retailNOI',  label: 'Retail / Comm. NOI ($/yr)',  type: 'number', placeholder: '270000',  hint: 'Retail EGI minus retail expenses' },
+        { id: 'parkingNOI', label: 'Parking / Other NOI ($/yr)', type: 'number', placeholder: '48000',   hint: 'Other ancillary income' },
+        { id: 'noi',        label: 'Total Blended NOI ($/yr)',   type: 'number', placeholder: '1938000', hint: 'Sum of all component NOIs' },
+        { id: 'expenses',   label: 'Total Expenses ($/yr)',       type: 'number', placeholder: '620000',  hint: 'All operating expenses' },
+        { id: 'reserves',   label: 'Capital Reserves ($/yr)',     type: 'number', placeholder: '72000',   hint: '$500/resi unit + $1/retail SF' },
+      ],
+      debt: [
+        { id: 'purchasePrice', label: 'Purchase Price / Value ($)', type: 'number', placeholder: '28000000', hint: '' },
+        { id: 'loanAmount',    label: 'Loan Amount ($)',             type: 'number', placeholder: '18200000', hint: '' },
+        { id: 'annualDS',      label: 'Annual Debt Service ($)',     type: 'number', placeholder: '1350000',  hint: 'P&I payments per year' },
+        { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.10',     hint: '' },
+        { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
+        { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '30',       hint: '' },
+      ]
+    },
+    specialMetrics: [
+      { label: 'Price / Resi Unit',  formula: (d) => d.purchasePrice && d.resiUnits ? '$ ' + Math.round(d.purchasePrice / d.resiUnits).toLocaleString() : '—' },
+      { label: 'Resi % of NOI',      formula: (d) => d.resiNOI && d.noi ? ((d.resiNOI / d.noi) * 100).toFixed(0) + '%' : '—' },
+      { label: 'Retail % of NOI',    formula: (d) => d.retailNOI && d.noi ? ((d.retailNOI / d.noi) * 100).toFixed(0) + '%' : '—' },
+      { label: 'Blended NOI / SF',   formula: (d) => { const tsf = (d.resiUnits||0)*850 + (d.retailSF||0); return tsf && d.noi ? '$ ' + (d.noi / tsf).toFixed(2) : '—'; }, tip: 'Estimated total SF' },
+    ]
+  }
+};
+
+let currentType = 'apartment';
+let memoGenerated = false;
+
+function calcEGI(d) {
+  const gpi = parseFloat(d.gpi||0);
+  const vac = parseFloat(d.vacancy||0);
+  const recov = parseFloat(d.recov||0);
+  const other = parseFloat(d.otherInc||d.pctRent||d.otherRev||0);
+  return gpi * (1 - vac/100) + recov + other;
+}
+
+function calcNOI(d) {
+  if (d.noi) return parseFloat(d.noi);
+  const egi = calcEGI(d);
+  const exp = parseFloat(d.expenses||0);
+  const res = parseFloat(d.reserves||0);
+  const tiLC = parseFloat(d.tiLC||0);
+  return egi - exp - res - tiLC;
+}
+
+function getFieldVals() {
+  const d = {};
+  const cfg = TYPES[currentType];
+  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt].forEach(f => {
+    const el = document.getElementById('f_' + f.id);
+    if (el) d[f.id] = el.value;
+  });
+  return d;
+}
+
+function calcMetrics(d) {
+  const noi        = calcNOI(d);
+  const annualDS   = parseFloat(d.annualDS||0);
+  const loanAmt    = parseFloat(d.loanAmount||0);
+  const price      = parseFloat(d.purchasePrice||0);
+  const occupancy  = parseFloat(d.occupancy||0);
+  const dscr       = annualDS > 0 ? noi / annualDS : 0;
+  const ltv        = price > 0 ? (loanAmt / price) * 100 : 0;
+  const capRate    = price > 0 ? (noi / price) * 100 : 0;
+  const debtYield  = loanAmt > 0 ? (noi / loanAmt) * 100 : 0;
+  const walt       = parseFloat(d.walt||0);
+  const clearHt    = parseFloat(d.clearHt||0);
+  const revpar     = (parseFloat(d.adr||0)) * (occupancy/100);
+  const anchorPct  = parseFloat(d.anchorPct||0);
+  const retailOcc  = parseFloat(d.retailOcc||0);
+  const breakeven  = noi && d.gpi ? (((parseFloat(d.expenses||0) + parseFloat(d.reserves||0) + annualDS) / parseFloat(d.gpi)) * 100) : 0;
+  return { noi, dscr, ltv, capRate, debtYield, walt, clearHt, revpar, anchorPct, retailOcc, breakeven };
+}
+
+function statusBadge(bench, val) {
+  if (val === 0 || isNaN(val)) return '<span class="badge badge-grey">—</span>';
+  if (bench.good && bench.good(val)) return '<span class="badge badge-green">✓ Pass</span>';
+  if (bench.warn && bench.warn(val)) return '<span class="badge badge-yellow">⚠ Review</span>';
+  return '<span class="badge badge-red">✗ Flag</span>';
+}
+
+function statusClass(bench, val) {
+  if (!bench.good || val === 0 || isNaN(val)) return 'lm-blue';
+  if (bench.good(val)) return 'lm-green';
+  if (bench.warn && bench.warn(val)) return 'lm-yellow';
+  return 'lm-red';
+}
+
+function fmtVal(field, val) {
+  if (!val || isNaN(val)) return '—';
+  if (field === 'dscr' || field === 'walt') return val.toFixed(2) + 'x';
+  if (field === 'ltv' || field === 'capRate' || field === 'debtYield' || field === 'occupancy' || field === 'anchorPct' || field === 'retailOcc' || field === 'breakeven') return val.toFixed(1) + '%';
+  if (field === 'clearHt') return val.toFixed(0) + ' ft';
+  if (field === 'revpar') return '$ ' + val.toFixed(2);
+  return val.toFixed(2);
+}
+
+function buildInputGroup(title, fields) {
+  return `<div class="card">
+    <div class="card-title"><span class="dot"></span>${title}</div>
+    <div class="grid2">${fields.map(f => {
+      if (f.type === 'select') {
+        return `<div class="field"><label>${f.label}</label>
+          <select id="f_${f.id}" onchange="liveCalc()">
+            ${f.options.map(o => `<option>${o}</option>`).join('')}
+          </select>${f.hint ? `<div class="hint">${f.hint}</div>` : ''}</div>`;
+      }
+      return `<div class="field"><label>${f.label}</label>
+        <input type="number" id="f_${f.id}" placeholder="${f.placeholder||''}"
+          oninput="liveCalc()" />
+        ${f.hint ? `<div class="hint">${f.hint}</div>` : ''}</div>`;
+    }).join('')}</div></div>`;
+}
+
+function render() {
+  const cfg = TYPES[currentType];
+  const panel = document.getElementById('rightPanel');
+
+  panel.innerHTML = `
+    <div class="prop-header">
+      <div class="prop-header-icon">${cfg.icon}</div>
+      <div class="prop-header-text">
+        <h2>${cfg.name}</h2>
+        <p>${cfg.desc}</p>
+      </div>
+      <div class="prop-type-badge">${cfg.badge}</div>
+    </div>
+
+    <div class="section-title">Live Ratios & Metrics</div>
+    <div class="metric-strip" id="metricStrip">
+      ${cfg.benchmarks.slice(0,4).map(b => `
+        <div class="live-metric lm-blue" id="lm_${b.field}">
+          <div class="lm-label">${b.name}</div>
+          <div class="lm-value" id="lmv_${b.field}">—</div>
+          <div class="lm-status" id="lms_${b.field}"><span class="status-neutral">Enter data below</span></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-title">Benchmark Analysis</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="ratio-table">
+        <thead><tr><th>Metric</th><th>Calculated Value</th><th>Benchmark</th><th>Status</th></tr></thead>
+        <tbody id="benchBody">
+          ${cfg.benchmarks.map(b => `<tr>
+            <td class="ratio-name">${b.name}</td>
+            <td class="ratio-value" id="rv_${b.field}">—</td>
+            <td class="ratio-bench">${b.bench}</td>
+            <td id="rs_${b.field}"><span class="badge badge-grey">—</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:20px;">Property-Specific Inputs</div>
+    ${buildInputGroup('Property & Physical Details', cfg.inputs.property)}
+    ${buildInputGroup('Income & Expense Analysis', cfg.inputs.income)}
+    ${buildInputGroup('Debt & Financing Structure', cfg.inputs.debt)}
+
+    <div class="section-title">Additional Metrics</div>
+    <div class="card">
+      <div class="grid2">
+        ${cfg.specialMetrics.map(m => `
+          <div class="live-metric lm-blue" style="border-radius:10px;">
+            <div class="lm-label">${m.label} ${m.tip ? `<span class="info-tip" title="${m.tip}">i</span>` : ''}</div>
+            <div class="lm-value" id="sm_${m.label.replace(/[^a-z0-9]/gi,'_')}" style="font-size:18px;">—</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="gen-row">
+      <button class="btn-primary" onclick="generateMemo()">📄 Generate CRE Credit Memo</button>
+      <button class="btn-outline" onclick="downloadMemo()">⬇ Download .txt</button>
+      <button class="btn-outline" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+
+    <div class="memo-wrap" id="memoOut">
+      <div class="memo-placeholder">Fill in the inputs above and click "Generate CRE Credit Memo" to produce a full underwriting memo for this property type.</div>
+    </div>
+  `;
+
+  fillDefaults();
+  liveCalc();
+}
+
+function fillDefaults() {
+  const cfg = TYPES[currentType];
+  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt].forEach(f => {
+    const el = document.getElementById('f_' + f.id);
+    if (el && f.placeholder && el.type !== 'select') el.value = f.placeholder;
+  });
+}
+
+function liveCalc() {
+  const d = getFieldVals();
+  const m = calcMetrics(d);
+  const cfg = TYPES[currentType];
+
+  cfg.benchmarks.forEach(b => {
+    const val = m[b.field];
+    const fmted = fmtVal(b.field, val);
+    const rvEl = document.getElementById('rv_' + b.field);
+    const rsEl = document.getElementById('rs_' + b.field);
+    const lvEl = document.getElementById('lmv_' + b.field);
+    const lsEl = document.getElementById('lms_' + b.field);
+    const lmEl = document.getElementById('lm_' + b.field);
+    if (rvEl) rvEl.textContent = fmted;
+    if (rsEl) rsEl.innerHTML = statusBadge(b, val);
+    if (lvEl) lvEl.textContent = fmted;
+    if (lmEl) {
+      lmEl.className = 'live-metric ' + statusClass(b, val);
+    }
+    if (lsEl) {
+      if (!val || isNaN(val)) { lsEl.innerHTML = '<span class="status-neutral">Enter data below</span>'; return; }
+      if (b.good && b.good(val)) lsEl.innerHTML = '<span class="status-good">✓ Passes benchmark</span>';
+      else if (b.warn && b.warn(val)) lsEl.innerHTML = '<span class="status-warn">⚠ Borderline — review</span>';
+      else lsEl.innerHTML = '<span class="status-bad">✗ Below threshold</span>';
+    }
+  });
+
+  cfg.specialMetrics.forEach(sm => {
+    const el = document.getElementById('sm_' + sm.label.replace(/[^a-z0-9]/gi,'_'));
+    if (el) el.textContent = sm.formula(d);
+  });
+}
+
+function generateMemo() {
+  const d   = getFieldVals();
+  const m   = calcMetrics(d);
+  const cfg = TYPES[currentType];
+  const today = new Date().toLocaleDateString();
+
+  const rows = (label, val) => `<tr><th>${label}</th><td>${val || 'N/A'}</td></tr>`;
+  const benchRows = cfg.benchmarks.map(b => {
+    const val = m[b.field];
+    const status = !val || isNaN(val) ? 'N/A' : b.good && b.good(val) ? '✓ Pass' : b.warn && b.warn(val) ? '⚠ Review' : '✗ Flag';
+    return `<tr><td>${b.name}</td><td><strong>${fmtVal(b.field, val)}</strong></td><td>${b.bench}</td><td>${status}</td></tr>`;
+  }).join('');
+
+  const specialRows = cfg.specialMetrics.map(sm =>
+    `<tr><td>${sm.label}</td><td>${sm.formula(d)}</td></tr>`).join('');
+
+  const rec = m.dscr >= 1.35 ? 'Recommend conditional approval. Property demonstrates strong debt service coverage and meets all primary underwriting thresholds. Subject to final appraisal, environmental review, and title clear.'
+    : m.dscr >= 1.20 ? 'Recommend approval with conditions. Property meets minimum debt service requirements. Additional review of lease rollover risk, reserves, and market comparables required prior to commitment.'
+    : m.dscr > 0 ? 'Recommend additional underwriting review or credit enhancement. DSCR is below preferred threshold. Consider loan restructuring, additional collateral, or guarantor support.'
+    : 'Insufficient data to make a recommendation. Please complete all required fields.';
+
+  document.getElementById('memoOut').innerHTML = `<div class="memo-paper" id="memoPaper">
+    <h1>Commercial Real Estate Credit Memo</h1>
+    <table>
+      <tr><th>Property Type</th><th>Date</th><th>Analyst</th></tr>
+      <tr><td>${cfg.name}</td><td>${today}</td><td>CRE Underwriting Team</td></tr>
+    </table>
+    <h2>Property Overview</h2>
+    <table>
+      ${rows('Property Type', cfg.name)}
+      ${rows('Purchase Price / Value', d.purchasePrice ? '$ ' + parseFloat(d.purchasePrice).toLocaleString() : '—')}
+      ${rows('Loan Amount', d.loanAmount ? '$ ' + parseFloat(d.loanAmount).toLocaleString() : '—')}
+      ${rows('Interest Rate', d.intRate ? d.intRate + '%' : '—')}
+      ${rows('Loan Term', d.term ? d.term + ' years' : '—')}
+      ${rows('Amortization', d.amort ? d.amort + ' years' : '—')}
+      ${rows('Annual Debt Service', d.annualDS ? '$ ' + parseFloat(d.annualDS).toLocaleString() : '—')}
+    </table>
+    <h2>Key Ratio Analysis</h2>
+    <table>
+      <tr><th>Metric</th><th>Calculated</th><th>Benchmark</th><th>Status</th></tr>
+      ${benchRows}
+    </table>
+    <h2>NOI Build-Up</h2>
+    <table>
+      ${rows('Gross Potential Income', d.gpi ? '$ ' + parseFloat(d.gpi).toLocaleString() : '—')}
+      ${rows('Vacancy & Credit Loss', d.vacancy ? '(' + d.vacancy + '%)' : '—')}
+      ${rows('Other / Recovery Income', d.recov || d.otherInc || d.pctRent || d.otherRev ? '$ ' + parseFloat(d.recov||d.otherInc||d.pctRent||d.otherRev||0).toLocaleString() : '—')}
+      ${rows('Effective Gross Income', '$ ' + calcEGI(d).toLocaleString(undefined,{maximumFractionDigits:0}))}
+      ${rows('Operating Expenses', d.expenses ? '($ ' + parseFloat(d.expenses).toLocaleString() + ')' : '—')}
+      ${rows('Capital Reserves', d.reserves ? '($ ' + parseFloat(d.reserves).toLocaleString() + ')' : '—')}
+      ${rows('Net Operating Income (NOI)', '$ ' + m.noi.toLocaleString(undefined,{maximumFractionDigits:0}))}
+      ${rows('Annual Debt Service', d.annualDS ? '($ ' + parseFloat(d.annualDS).toLocaleString() + ')' : '—')}
+      ${rows('Cash Flow After Debt Service', d.annualDS ? '$ ' + (m.noi - parseFloat(d.annualDS)).toLocaleString(undefined,{maximumFractionDigits:0}) : '—')}
+    </table>
+    <h2>Property-Specific Metrics</h2>
+    <table>${specialRows}</table>
+    <h2>Strengths</h2>
+    <ul>
+      ${m.dscr >= 1.25 ? '<li>DSCR of ' + m.dscr.toFixed(2) + 'x meets or exceeds minimum underwriting threshold.</li>' : ''}
+      ${m.ltv <= 70 ? '<li>LTV of ' + m.ltv.toFixed(1) + '% provides adequate equity cushion and loss protection.</li>' : ''}
+      ${m.capRate >= 5.5 ? '<li>Cap rate of ' + m.capRate.toFixed(2) + '% reflects favorable risk-adjusted return.</li>' : ''}
+      ${m.debtYield >= 7 ? '<li>Debt yield of ' + m.debtYield.toFixed(2) + '% exceeds lender minimum, reducing refinance risk.</li>' : ''}
+      <li>Property type (${cfg.name}) supported by underwriting guidelines with defined benchmark thresholds.</li>
+    </ul>
+    <h2>Risks & Mitigants</h2>
+    <table>
+      <tr><th>Risk</th><th>Mitigant / Required Action</th></tr>
+      ${m.dscr < 1.25 && m.dscr > 0 ? '<tr><td>DSCR of ' + m.dscr.toFixed(2) + 'x is below preferred threshold.</td><td>Evaluate interest-only period, additional guaranty, or principal reduction.</td></tr>' : ''}
+      ${m.ltv > 70 ? '<tr><td>LTV of ' + m.ltv.toFixed(1) + '% exceeds 70% preferred maximum.</td><td>Require additional equity contribution or mortgage insurance.</td></tr>' : ''}
+      <tr><td>Income based on borrower-provided financials, not yet verified.</td><td>Require full rent roll, 12-month operating statement, and independent MAI appraisal.</td></tr>
+      <tr><td>Market and interest rate risk over loan term.</td><td>Structure interest rate cap or swap if floating rate. Stress test at +200bps.</td></tr>
+    </table>
+    <h2>Conditions to Approval</h2>
+    <table>
+      <tr><th>Condition</th><th>Status</th></tr>
+      <tr><td>MAI Appraisal (review or full)</td><td>Required</td></tr>
+      <tr><td>Phase I Environmental Site Assessment</td><td>Required</td></tr>
+      <tr><td>Property Condition Report (PCR)</td><td>Required</td></tr>
+      <tr><td>Rent Roll (signed leases or trailing T12)</td><td>Required</td></tr>
+      <tr><td>Title Search & Title Insurance</td><td>Required</td></tr>
+      <tr><td>Insurance — Property, Liability, Flood (if applicable)</td><td>Required</td></tr>
+      <tr><td>Borrower Financial Statements (2 yrs + interim)</td><td>Required</td></tr>
+      <tr><td>Guarantor Personal Financial Statements</td><td>Required</td></tr>
+    </table>
+    <h2>Preliminary Recommendation</h2>
+    <p><strong>${rec}</strong></p>
+    <p style="font-size:12px;color:#64748b;margin-top:10px;">This memo is system-generated for demo purposes. All inputs should be verified against third-party sources prior to credit committee presentation.</p>
+  </div>`;
+
+  window.latestMemoText = document.getElementById('memoPaper').innerText;
+}
+
+function downloadMemo() {
+  if (!window.latestMemoText) { generateMemo(); }
+  const blob = new Blob([window.latestMemoText], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'cre-credit-memo-' + currentType + '.txt';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function setType(type) {
+  currentType = type;
+  document.querySelectorAll('.prop-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  window.latestMemoText = null;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
