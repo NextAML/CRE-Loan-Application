@@ -469,6 +469,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '6.75',    hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',      hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '30',      hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '8500000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '42500', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '7500000', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '600000', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -516,6 +532,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.25',     hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '18000000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '90000', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '15750000', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '1260000', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -563,6 +595,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.50',     hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '12500000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '62500', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '10156250', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '812500', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -611,6 +659,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '6.90',     hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '35000000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '175000', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '30625000', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '2450000', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -658,6 +722,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.75',     hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '25',       hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '24000000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '120000', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '18000000', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '1440000', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -705,6 +785,22 @@ const TYPES = {
         { id: 'intRate',       label: 'Interest Rate (%)',           type: 'number', placeholder: '7.10',     hint: '' },
         { id: 'term',          label: 'Loan Term (years)',           type: 'number', placeholder: '10',       hint: '' },
         { id: 'amort',         label: 'Amortization (years)',        type: 'number', placeholder: '30',       hint: '' },
+      ],
+      collateral: [
+        { id: 'collateralType', label: 'Primary Collateral Type',       type: 'select', options: ['First Mortgage / Deed of Trust','Leasehold Mortgage','Fee & Leasehold Combined'], hint: '' },
+        { id: 'lienPosition',   label: 'Lien Position',                 type: 'select', options: ['1st Lien','2nd Lien / Mezzanine','Cross-Collateralized'], hint: '' },
+        { id: 'asIsValue',      label: 'Appraised As-Is Value ($)',     type: 'number', placeholder: '28000000', hint: 'Most recent MAI appraisal, as-is basis' },
+        { id: 'assignRents',    label: 'Assignment of Leases & Rents',  type: 'select', options: ['Yes — Recorded','Yes — Unrecorded','No'], hint: '' },
+        { id: 'uccFiling',      label: 'UCC-1 Filing (Personal Prop.)', type: 'select', options: ['Yes','No'], hint: 'Covers FF&E / personal property' },
+        { id: 'escrowReserves', label: 'Tax & Insurance Escrow ($/yr)', type: 'number', placeholder: '140000', hint: 'Monthly escrow × 12' },
+      ],
+      guaranty: [
+        { id: 'guarantyType',       label: 'Guaranty Type',                 type: 'select', options: ['Full Recourse','Non-Recourse w/ Carve-Outs (Bad-Boy)','Limited / Partial Recourse','Non-Recourse (No Carve-Outs)'], hint: '' },
+        { id: 'guarantorName',      label: 'Guarantor(s)',                  type: 'text',   placeholder: 'Principal(s) of Borrower', hint: 'Individual(s) or entity providing guaranty' },
+        { id: 'guarantorNetWorth',  label: 'Guarantor Net Worth ($)',       type: 'number', placeholder: '22750000', hint: 'Per personal financial statement' },
+        { id: 'guarantorLiquidity', label: 'Guarantor Liquidity ($)',       type: 'number', placeholder: '1820000', hint: 'Cash & marketable securities' },
+        { id: 'guarantyCoveragePct',label: 'Recourse Coverage (%)',         type: 'number', placeholder: '25', hint: 'Applies if limited / partial recourse' },
+        { id: 'carveOuts',          label: 'Carve-Out Events',              type: 'text',   placeholder: 'Fraud, waste, misappropriation, environmental, bankruptcy', hint: 'Standard bad-boy carve-out triggers' },
       ]
     },
     specialMetrics: [
@@ -739,7 +835,7 @@ function calcNOI(d) {
 function getFieldVals() {
   const d = {};
   const cfg = TYPES[currentType];
-  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt].forEach(f => {
+  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt, ...cfg.inputs.collateral, ...cfg.inputs.guaranty].forEach(f => {
     const el = document.getElementById('f_' + f.id);
     if (el) d[f.id] = el.value;
   });
@@ -799,7 +895,7 @@ function buildInputGroup(title, fields) {
           </select>${f.hint ? `<div class="hint">${f.hint}</div>` : ''}</div>`;
       }
       return `<div class="field"><label>${f.label}</label>
-        <input type="number" id="f_${f.id}" placeholder="${f.placeholder||''}"
+        <input type="${f.type === 'text' ? 'text' : 'number'}" id="f_${f.id}" placeholder="${f.placeholder||''}"
           oninput="liveCalc()" />
         ${f.hint ? `<div class="hint">${f.hint}</div>` : ''}</div>`;
     }).join('')}</div></div>`;
@@ -848,6 +944,8 @@ function render() {
     ${buildInputGroup('Property & Physical Details', cfg.inputs.property)}
     ${buildInputGroup('Income & Expense Analysis', cfg.inputs.income)}
     ${buildInputGroup('Debt & Financing Structure', cfg.inputs.debt)}
+    ${buildInputGroup('Collateral', cfg.inputs.collateral)}
+    ${buildInputGroup('Guaranty', cfg.inputs.guaranty)}
 
     <div class="section-title">Additional Metrics</div>
     <div class="card">
@@ -877,7 +975,7 @@ function render() {
 
 function fillDefaults() {
   const cfg = TYPES[currentType];
-  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt].forEach(f => {
+  [...cfg.inputs.property, ...cfg.inputs.income, ...cfg.inputs.debt, ...cfg.inputs.collateral, ...cfg.inputs.guaranty].forEach(f => {
     const el = document.getElementById('f_' + f.id);
     if (el && f.placeholder && el.type !== 'select') el.value = f.placeholder;
   });
@@ -972,12 +1070,32 @@ function generateMemo() {
     </table>
     <h2>Property-Specific Metrics</h2>
     <table>${specialRows}</table>
+    <h2>Collateral</h2>
+    <table>
+      ${rows('Primary Collateral Type', d.collateralType)}
+      ${rows('Lien Position', d.lienPosition)}
+      ${rows('Appraised As-Is Value', d.asIsValue ? '$ ' + parseFloat(d.asIsValue).toLocaleString() : '—')}
+      ${rows('Assignment of Leases & Rents', d.assignRents)}
+      ${rows('UCC-1 Filing (Personal Property)', d.uccFiling)}
+      ${rows('Tax & Insurance Escrow ($/yr)', d.escrowReserves ? '$ ' + parseFloat(d.escrowReserves).toLocaleString() : '—')}
+    </table>
+    <h2>Guaranty</h2>
+    <table>
+      ${rows('Guaranty Type', d.guarantyType)}
+      ${rows('Guarantor(s)', d.guarantorName)}
+      ${rows('Guarantor Net Worth', d.guarantorNetWorth ? '$ ' + parseFloat(d.guarantorNetWorth).toLocaleString() : '—')}
+      ${rows('Guarantor Liquidity', d.guarantorLiquidity ? '$ ' + parseFloat(d.guarantorLiquidity).toLocaleString() : '—')}
+      ${rows('Recourse Coverage', d.guarantyCoveragePct ? d.guarantyCoveragePct + '%' : '—')}
+      ${rows('Carve-Out Events', d.carveOuts)}
+    </table>
     <h2>Strengths</h2>
     <ul>
       ${m.dscr >= 1.25 ? '<li>DSCR of ' + m.dscr.toFixed(2) + 'x meets or exceeds minimum underwriting threshold.</li>' : ''}
       ${m.ltv <= 70 ? '<li>LTV of ' + m.ltv.toFixed(1) + '% provides adequate equity cushion and loss protection.</li>' : ''}
       ${m.capRate >= 5.5 ? '<li>Cap rate of ' + m.capRate.toFixed(2) + '% reflects favorable risk-adjusted return.</li>' : ''}
       ${m.debtYield >= 7 ? '<li>Debt yield of ' + m.debtYield.toFixed(2) + '% exceeds lender minimum, reducing refinance risk.</li>' : ''}
+      ${d.guarantorNetWorth && d.loanAmount && parseFloat(d.guarantorNetWorth) >= parseFloat(d.loanAmount) ? '<li>Guarantor net worth of $' + parseFloat(d.guarantorNetWorth).toLocaleString() + ' exceeds the loan amount, providing meaningful contingent repayment support.</li>' : ''}
+      ${d.assignRents && d.assignRents.startsWith('Yes') ? '<li>Assignment of Leases & Rents is in place, strengthening lender collateral position.</li>' : ''}
       <li>Property type (${cfg.name}) supported by underwriting guidelines with defined benchmark thresholds.</li>
     </ul>
     <h2>Risks & Mitigants</h2>
@@ -985,6 +1103,8 @@ function generateMemo() {
       <tr><th>Risk</th><th>Mitigant / Required Action</th></tr>
       ${m.dscr < 1.25 && m.dscr > 0 ? '<tr><td>DSCR of ' + m.dscr.toFixed(2) + 'x is below preferred threshold.</td><td>Evaluate interest-only period, additional guaranty, or principal reduction.</td></tr>' : ''}
       ${m.ltv > 70 ? '<tr><td>LTV of ' + m.ltv.toFixed(1) + '% exceeds 70% preferred maximum.</td><td>Require additional equity contribution or mortgage insurance.</td></tr>' : ''}
+      ${d.guarantyType === 'Non-Recourse (No Carve-Outs)' ? '<tr><td>Loan is fully non-recourse with no carve-outs.</td><td>Confirm collateral value and reserves are sufficient to cover full loan basis absent guarantor support.</td></tr>' : ''}
+      ${d.guarantorNetWorth && d.loanAmount && parseFloat(d.guarantorNetWorth) < parseFloat(d.loanAmount) ? '<tr><td>Guarantor net worth is below the loan amount.</td><td>Consider additional guarantors, a corporate guaranty, or credit enhancement (LC, cash reserve).</td></tr>' : ''}
       <tr><td>Income based on borrower-provided financials, not yet verified.</td><td>Require full rent roll, 12-month operating statement, and independent MAI appraisal.</td></tr>
       <tr><td>Market and interest rate risk over loan term.</td><td>Structure interest rate cap or swap if floating rate. Stress test at +200bps.</td></tr>
     </table>
