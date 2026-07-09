@@ -315,6 +315,35 @@
     .memo-paper th, .memo-paper td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
     .memo-paper th { background: #f8fafc; font-weight: 700; }
 
+    /* ── CREDIT RISK RATING ── */
+    .risk-top-card { padding: 18px 20px; }
+    .risk-top-inner { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .risk-badge-lg {
+      width: 62px; height: 62px; flex-shrink: 0;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800;
+      letter-spacing: -0.2px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .risk-top-text { flex: 1; min-width: 180px; }
+    .risk-top-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .risk-top-name  { font-size: 18px; font-weight: 800; margin-top: 2px; color: var(--text); }
+    .risk-top-sub   { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .risk-trend-chip {
+      padding: 6px 12px; border-radius: 99px;
+      font-size: 11px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .risk-desc-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; font-style: italic; }
+    .risk-result table { margin-bottom: 0; }
+    .risk-summary-box {
+      margin-top: 12px; padding: 12px 14px;
+      border-radius: 10px; background: #f8fafc;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
     /* ── TOOLTIP ── */
     .info-tip {
       display: inline-block; width: 16px; height: 16px;
@@ -815,6 +844,149 @@ const TYPES = {
 let currentType = 'apartment';
 let memoGenerated = false;
 
+/* ── CREDIT RISK RATING (CRR) — QUALITATIVE SCORECARD ── */
+const CRR_LEVELS = [
+  { n: 1,  name: 'Minimal Risk',    color: '#059669' },
+  { n: 2,  name: 'Low Risk',        color: '#10b981' },
+  { n: 3,  name: 'Moderate Risk',   color: '#34d399' },
+  { n: 4,  name: 'Normal Risk',     color: '#3b82f6' },
+  { n: 5,  name: 'Evaluated Risk',  color: '#0ea5e9' },
+  { n: 6,  name: 'Acceptable Risk', color: '#f59e0b' },
+  { n: 7,  name: 'Special Mention', color: '#f97316' },
+  { n: 8,  name: 'Substandard',     color: '#ef4444' },
+  { n: 9,  name: 'Doubtful',        color: '#b91c1c' },
+  { n: 10, name: 'Loss',            color: '#7f1d1d' },
+];
+
+const CRR_DESCRIPTIONS = {
+  financialFlex: [
+    'Borrower has substantial liquidity, strong cash reserves, and multiple financing options. Easily adapts to market changes.',
+    'Borrower maintains solid financial health, stable cash flow, and access to diverse funding sources.',
+    'Borrower has reliable financial flexibility but may experience minor constraints during economic downturns.',
+    'Meets industry standards but has potential vulnerabilities. Financial flexibility is sufficient but could be impacted by external factors.',
+    'Borrower has reduced financial flexibility due to rising leverage or declining liquidity. Requires enhanced monitoring.',
+    'Significant financial constraints exist. Borrower may struggle to secure additional financing or manage cash flow effectively.',
+    'Borrower faces financial distress, with limited ability to adjust to market conditions or refinance existing obligations.',
+    'Financial flexibility is highly restricted. Borrower has difficulty raising funds and meeting obligations and may require restructuring.',
+    'Borrower is in severe financial distress, with little to no ability to adapt or secure additional funding. Default risk is high.',
+    'Borrower has no financial flexibility. Insolvency or liquidation is imminent, and repayment is highly improbable.',
+  ],
+  marketCond: [
+    'Industry is experiencing strong growth with minimal volatility. Market conditions are highly favorable, and demand remains consistent.',
+    'Industry fundamentals are solid, with predictable revenue streams and manageable competition. Market conditions remain favorable.',
+    'Some cyclical trends exist, but the industry remains resilient. Market conditions require monitoring but are not a major concern.',
+    'Industry operates within expected risk levels. Market conditions fluctuate but remain within historical norms.',
+    'Industry is facing emerging risks, such as regulatory changes or shifting consumer preferences. Market conditions require enhanced monitoring.',
+    'Industry is experiencing significant disruptions, such as declining demand or increased competition. Market conditions are deteriorating.',
+    'Industry is in distress, with declining revenues and structural weaknesses. Market conditions are unfavorable, requiring intervention.',
+    'Industry is undergoing major contraction or disruption. Market conditions are highly uncertain, and recovery is questionable.',
+    'Industry is in crisis, with widespread financial distress and failing businesses. Market conditions are unsustainable.',
+    'Market conditions have deteriorated beyond recovery, leading to insolvency or liquidation.',
+  ],
+  repayment: [
+    'Borrower has exceptionally strong financials, stable rental income, and low leverage. Property is in a prime location with high occupancy rates.',
+    'Borrower maintains solid financial health, manageable leverage, and consistent rental cash flow. Market conditions remain favorable.',
+    'Some cyclical trends in rental income, manageable leverage, and stable repayment ability. Requires monitoring but remains within acceptable limits.',
+    'Meets industry standards but has potential vulnerabilities. Property may be subject to market fluctuations or tenant turnover.',
+    'Emerging repayment risks exist, requiring enhanced oversight. Borrower remains performing but shows early signs of financial stress due to declining occupancy or rental rates.',
+    'Significant repayment risk due to financial weaknesses. Borrower may struggle with debt service under adverse conditions, such as rising interest rates or market downturns.',
+    'Borrower is experiencing financial distress, with repayment ability becoming uncertain. Property value may be declining, and refinancing options are limited.',
+    'Repayment is highly uncertain. Borrower has serious financial weaknesses, and property cash flow is insufficient to cover debt obligations. Workout solutions may be necessary.',
+    'Borrower is in severe financial distress, with repayment unlikely without significant intervention. Property may be facing foreclosure or forced liquidation.',
+    'Borrower is unable to repay the loan. Property value has deteriorated significantly, and full repayment is highly improbable. Charge-off or asset liquidation is required.',
+  ],
+};
+
+// LTV band ceilings mapped to CRR levels 1–10 (per underwriting grid: ≤50%, 51–60%, 61–65%, 65–70%, 71–75%, 75–80%, 81–85%, 85–90%, 91–95%, >95%)
+const LTV_BAND_CEILINGS = [50, 60, 65, 70, 75, 80, 85, 90, 95];
+
+function ltvToLevel(ltv) {
+  if (!ltv || isNaN(ltv) || ltv <= 0) return null;
+  for (let i = 0; i < LTV_BAND_CEILINGS.length; i++) {
+    if (ltv <= LTV_BAND_CEILINGS[i]) return i + 1;
+  }
+  return 10;
+}
+
+// Repayment Behavior — auto-derived from DSCR
+const DSCR_BANDS = [1.50, 1.35, 1.25, 1.15, 1.05, 1.00, 0.95, 0.85, 0.75]; // level 1..9 floors; below last => 10
+function dscrToLevel(dscr) {
+  if (!dscr || isNaN(dscr) || dscr <= 0) return null;
+  for (let i = 0; i < DSCR_BANDS.length; i++) {
+    if (dscr >= DSCR_BANDS[i]) return i + 1;
+  }
+  return 10;
+}
+
+// Financial Flexibility — auto-derived from Debt Yield
+const DEBT_YIELD_BANDS = [12, 10, 9, 8, 7, 6, 5, 4, 3]; // level 1..9 floors; below last => 10
+function debtYieldToLevel(dy) {
+  if (!dy || isNaN(dy) || dy <= 0) return null;
+  for (let i = 0; i < DEBT_YIELD_BANDS.length; i++) {
+    if (dy >= DEBT_YIELD_BANDS[i]) return i + 1;
+  }
+  return 10;
+}
+
+function crrLevelInfo(n) {
+  return CRR_LEVELS.find(l => l.n === Number(n)) || null;
+}
+
+// Weighting for the overall CRR (weighted average, rounded to nearest level)
+const CRR_WEIGHTS = { repayment: 0.35, ltv: 0.30, financialFlex: 0.20, marketCond: 0.15 };
+
+// Repayment Behavior, LTV, and Financial Flexibility are auto-calculated from ratios already on the form.
+// Market Conditions has no reliable single ratio and stays a qualitative analyst selection.
+function getRiskAssessment(m, d) {
+  // Repayment Behavior — auto (DSCR)
+  const rpLevel = dscrToLevel(m.dscr);
+
+  // Financial Flexibility — auto (Debt Yield), adjusted for guarantor coverage of the loan
+  const ffBase = debtYieldToLevel(m.debtYield);
+  let ffLevel = ffBase;
+  let ffModifierNote = '';
+  if (ffBase !== null) {
+    const loanAmt   = parseFloat(d.loanAmount || 0);
+    const netWorth  = parseFloat(d.guarantorNetWorth || 0);
+    const coverage  = (loanAmt > 0 && netWorth > 0) ? netWorth / loanAmt : null;
+    if (coverage !== null && coverage >= 1.5) {
+      ffLevel = Math.max(1, ffBase - 1);
+      ffModifierNote = 'Improved 1 level — guarantor net worth covers ' + coverage.toFixed(2) + 'x the loan';
+    } else if ((coverage !== null && coverage < 0.5) || d.guarantyType === 'Non-Recourse (No Carve-Outs)') {
+      ffLevel = Math.min(10, ffBase + 1);
+      ffModifierNote = (coverage !== null && coverage < 0.5)
+        ? 'Worsened 1 level — guarantor net worth covers only ' + coverage.toFixed(2) + 'x the loan'
+        : 'Worsened 1 level — loan is fully non-recourse with no carve-outs';
+    }
+  }
+
+  // LTV — auto
+  const ltvLevel = ltvToLevel(m.ltv);
+
+  // Market Conditions — manual (qualitative, no reliable ratio available)
+  const mcEl = document.getElementById('risk_marketCond');
+  const mc = mcEl && mcEl.value ? Number(mcEl.value) : null;
+
+  // Risk Trend / Rationale — manual, informational only (do not feed the numeric score)
+  const trendEl     = document.getElementById('risk_trend');
+  const rationaleEl = document.getElementById('risk_rationale');
+  const trend     = trendEl ? trendEl.value : '';
+  const rationale = rationaleEl ? rationaleEl.value : '';
+
+  const complete = rpLevel !== null && ffLevel !== null && ltvLevel !== null && mc !== null;
+  let overall = null, info = null;
+  if (complete) {
+    const weighted = (CRR_WEIGHTS.repayment * rpLevel)
+                    + (CRR_WEIGHTS.ltv * ltvLevel)
+                    + (CRR_WEIGHTS.financialFlex * ffLevel)
+                    + (CRR_WEIGHTS.marketCond * mc);
+    overall = Math.min(10, Math.max(1, Math.round(weighted)));
+    info = crrLevelInfo(overall);
+  }
+
+  return { rpLevel, ffLevel, ffModifierNote, ltvLevel, mc, trend, rationale, overall, info, complete };
+}
+
 function calcEGI(d) {
   const gpi = parseFloat(d.gpi||0);
   const vac = parseFloat(d.vacancy||0);
@@ -925,6 +1097,19 @@ function render() {
         </div>`).join('')}
     </div>
 
+    <div class="section-title">Credit Risk Rating</div>
+    <div class="card risk-top-card" id="riskTopBox">
+      <div class="risk-top-inner">
+        <div class="risk-badge-lg" id="riskBadgeLg" style="background:#e2e8f0;color:#64748b;">—</div>
+        <div class="risk-top-text">
+          <div class="risk-top-label">Overall Credit Risk Rating (CRR)</div>
+          <div class="risk-top-name" id="riskTopName">Not yet rated</div>
+          <div class="risk-top-sub" id="riskTopSub">Complete the qualitative assessment below to generate a rating.</div>
+        </div>
+        <div class="risk-trend-chip" id="riskTrendChip" style="display:none;"></div>
+      </div>
+    </div>
+
     <div class="section-title">Benchmark Analysis</div>
     <div class="card" style="padding:0;overflow:hidden;">
       <table class="ratio-table">
@@ -956,6 +1141,56 @@ function render() {
             <div class="lm-value" id="sm_${m.label.replace(/[^a-z0-9]/gi,'_')}" style="font-size:18px;">—</div>
           </div>`).join('')}
       </div>
+    </div>
+
+    <div class="section-title">Credit Risk Rating Assessment</div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Qualitative & Quantitative Criteria</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Repayment Behavior <span class="info-tip" title="Auto-calculated from DSCR">i</span></label>
+          <input type="text" id="risk_repaymentAuto" disabled value="—" style="background:#f8fafc;color:var(--muted);font-weight:700;" />
+          <div class="risk-desc-hint" id="desc_repayment"></div>
+        </div>
+        <div class="field">
+          <label>LTV <span class="info-tip" title="Auto-calculated from Purchase Price / Value and Loan Amount">i</span></label>
+          <input type="text" id="risk_ltvDisplay" disabled value="—" style="background:#f8fafc;color:var(--muted);font-weight:700;" />
+          <div class="hint">Derived automatically from Purchase Price / Value and Loan Amount above</div>
+        </div>
+        <div class="field">
+          <label>Financial Flexibility <span class="info-tip" title="Auto-calculated from Debt Yield, adjusted for guarantor net worth coverage of the loan">i</span></label>
+          <input type="text" id="risk_financialFlexAuto" disabled value="—" style="background:#f8fafc;color:var(--muted);font-weight:700;" />
+          <div class="risk-desc-hint" id="desc_financialFlex"></div>
+        </div>
+        <div class="field">
+          <label>Market Conditions <span class="info-tip" title="Qualitative — no reliable single ratio available; select the level matching current industry/market conditions">i</span></label>
+          <select id="risk_marketCond" onchange="calcRisk()">
+            <option value="">Select level…</option>
+            ${CRR_LEVELS.map(l => `<option value="${l.n}">${l.n} — ${l.name}</option>`).join('')}
+          </select>
+          <div class="risk-desc-hint" id="desc_marketCond"></div>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:12px;">
+        <div class="field">
+          <label>Risk Trend <span class="info-tip" title="Applicable for CRR 7–10 only (Special Mention through Loss)">i</span></label>
+          <select id="risk_trend" onchange="calcRisk()">
+            <option value="">N/A</option>
+            <option>Improving</option>
+            <option>Stable</option>
+            <option>Under pressure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Loan Grade Rationale</label>
+          <textarea id="risk_rationale" rows="2" placeholder="e.g. Adequate DSCR; improved gross rental income; strong collateral value; experienced guarantor"
+            oninput="calcRisk()"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;resize:vertical;outline:none;"></textarea>
+        </div>
+      </div>
+
+      <div class="risk-result" id="riskResultBox" style="margin-top:16px;"></div>
     </div>
 
     <div class="gen-row">
@@ -1012,6 +1247,109 @@ function liveCalc() {
     const el = document.getElementById('sm_' + sm.label.replace(/[^a-z0-9]/gi,'_'));
     if (el) el.textContent = sm.formula(d);
   });
+
+  calcRisk();
+}
+
+function calcRisk() {
+  const d = getFieldVals();
+  const m = calcMetrics(d);
+  const risk = getRiskAssessment(m, d);
+
+  // qualitative narrative tied to each computed/selected level (pulled from your original grid text)
+  const showDesc = (id, arr, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val ? arr[Number(val) - 1] : '';
+  };
+  showDesc('desc_repayment',     CRR_DESCRIPTIONS.repayment,     risk.rpLevel);
+  showDesc('desc_financialFlex', CRR_DESCRIPTIONS.financialFlex, risk.ffLevel);
+  showDesc('desc_marketCond',    CRR_DESCRIPTIONS.marketCond,    risk.mc);
+
+  // auto display: Repayment Behavior (DSCR)
+  const rpEl = document.getElementById('risk_repaymentAuto');
+  if (rpEl) {
+    rpEl.value = risk.rpLevel
+      ? `Level ${risk.rpLevel} — ${crrLevelInfo(risk.rpLevel).name} (DSCR: ${m.dscr.toFixed(2)}x)`
+      : '— (enter NOI & Annual Debt Service above)';
+  }
+
+  // auto display: LTV
+  const ltvDisplayEl = document.getElementById('risk_ltvDisplay');
+  if (ltvDisplayEl) {
+    ltvDisplayEl.value = risk.ltvLevel
+      ? `Level ${risk.ltvLevel} — ${crrLevelInfo(risk.ltvLevel).name} (${m.ltv.toFixed(1)}%)`
+      : '— (enter Purchase Price & Loan Amount above)';
+  }
+
+  // auto display: Financial Flexibility (Debt Yield + guarantor modifier)
+  const ffEl = document.getElementById('risk_financialFlexAuto');
+  if (ffEl) {
+    ffEl.value = risk.ffLevel
+      ? `Level ${risk.ffLevel} — ${crrLevelInfo(risk.ffLevel).name} (Debt Yield: ${m.debtYield.toFixed(2)}%)`
+      : '— (enter NOI & Loan Amount above)';
+  }
+  const ffHintEl = document.getElementById('desc_financialFlex');
+  if (ffHintEl && risk.ffModifierNote) {
+    ffHintEl.textContent = (ffHintEl.textContent ? ffHintEl.textContent + ' ' : '') + '· ' + risk.ffModifierNote;
+  }
+
+  // top valuation box
+  const badgeLg   = document.getElementById('riskBadgeLg');
+  const nameEl    = document.getElementById('riskTopName');
+  const subEl     = document.getElementById('riskTopSub');
+  const trendChip = document.getElementById('riskTrendChip');
+
+  if (badgeLg) {
+    badgeLg.textContent = risk.overall ? 'CRR ' + risk.overall : '—';
+    badgeLg.style.background = risk.overall ? risk.info.color : '#e2e8f0';
+    badgeLg.style.color = risk.overall ? '#ffffff' : '#64748b';
+  }
+  if (nameEl) nameEl.textContent = risk.overall ? risk.info.name : 'Not yet rated';
+  if (subEl) {
+    if (risk.overall) {
+      subEl.textContent = 'Weighted average — Repayment 35% · LTV 30% · Financial Flexibility 20% · Market Conditions 15% — rounded to the nearest level.';
+    } else {
+      const missing = [];
+      if (!risk.rpLevel) missing.push('NOI / Annual Debt Service (Repayment Behavior)');
+      if (!risk.ltvLevel) missing.push('Purchase Price / Loan Amount (LTV)');
+      if (!risk.ffLevel) missing.push('NOI / Loan Amount (Financial Flexibility)');
+      if (!risk.mc) missing.push('Market Conditions selection');
+      subEl.textContent = 'Missing: ' + missing.join(', ') + '.';
+    }
+  }
+  if (trendChip) {
+    if (risk.overall >= 7 && risk.trend) {
+      trendChip.style.display = 'inline-block';
+      trendChip.textContent = 'Trend: ' + risk.trend;
+      trendChip.style.background = risk.trend === 'Improving' ? 'var(--green-bg)' : risk.trend === 'Stable' ? '#f1f5f9' : 'var(--red-bg)';
+      trendChip.style.color = risk.trend === 'Improving' ? 'var(--green-text)' : risk.trend === 'Stable' ? 'var(--muted)' : 'var(--red-text)';
+    } else {
+      trendChip.style.display = 'none';
+    }
+  }
+
+  // bottom breakdown / result panel
+  const resultBox = document.getElementById('riskResultBox');
+  if (resultBox) {
+    const levelCell = (val) => {
+      const info = val ? crrLevelInfo(Number(val)) : null;
+      return info ? `${info.n} — ${info.name}` : '<span class="status-neutral">Pending</span>';
+    };
+    resultBox.innerHTML = `
+      <table class="ratio-table">
+        <thead><tr><th>Criterion</th><th>Weight</th><th>Assigned Level</th></tr></thead>
+        <tbody>
+          <tr><td class="ratio-name">Repayment Behavior (DSCR)</td><td>35%</td><td>${levelCell(risk.rpLevel)}</td></tr>
+          <tr><td class="ratio-name">LTV</td><td>30%</td><td>${levelCell(risk.ltvLevel)}</td></tr>
+          <tr><td class="ratio-name">Financial Flexibility (Debt Yield + Guarantor)</td><td>20%</td><td>${levelCell(risk.ffLevel)}</td></tr>
+          <tr><td class="ratio-name">Market Conditions (analyst-selected)</td><td>15%</td><td>${levelCell(risk.mc)}</td></tr>
+        </tbody>
+      </table>
+      <div class="risk-summary-box">
+        <strong>Overall CRR (weighted avg, rounded):</strong> ${risk.overall ? risk.overall + ' — ' + risk.info.name : 'Pending — complete all four inputs above'}
+        ${risk.overall >= 7 && risk.trend ? `<div style="margin-top:4px;color:var(--muted);">Risk Trend: ${risk.trend}</div>` : ''}
+      </div>`;
+  }
 }
 
 function generateMemo() {
@@ -1019,6 +1357,7 @@ function generateMemo() {
   const m   = calcMetrics(d);
   const cfg = TYPES[currentType];
   const today = new Date().toLocaleDateString();
+  const risk = getRiskAssessment(m, d);
 
   const rows = (label, val) => `<tr><th>${label}</th><td>${val || 'N/A'}</td></tr>`;
   const benchRows = cfg.benchmarks.map(b => {
@@ -1050,6 +1389,16 @@ function generateMemo() {
       ${rows('Loan Term', d.term ? d.term + ' years' : '—')}
       ${rows('Amortization', d.amort ? d.amort + ' years' : '—')}
       ${rows('Annual Debt Service', d.annualDS ? '$ ' + parseFloat(d.annualDS).toLocaleString() : '—')}
+    </table>
+    <h2>Credit Risk Rating (CRR)</h2>
+    <table>
+      ${rows('Repayment Behavior <span style="font-weight:400;color:#64748b;">(35% wt · DSCR ' + (m.dscr ? m.dscr.toFixed(2) + 'x' : '—') + ')</span>', risk.rpLevel ? risk.rpLevel + ' — ' + crrLevelInfo(risk.rpLevel).name : '—')}
+      ${rows('LTV <span style="font-weight:400;color:#64748b;">(30% wt · ' + (m.ltv ? m.ltv.toFixed(1) + '%' : '—') + ')</span>', risk.ltvLevel ? risk.ltvLevel + ' — ' + crrLevelInfo(risk.ltvLevel).name : '—')}
+      ${rows('Financial Flexibility <span style="font-weight:400;color:#64748b;">(20% wt · Debt Yield ' + (m.debtYield ? m.debtYield.toFixed(2) + '%' : '—') + ')</span>', risk.ffLevel ? risk.ffLevel + ' — ' + crrLevelInfo(risk.ffLevel).name + (risk.ffModifierNote ? ' (' + risk.ffModifierNote + ')' : '') : '—')}
+      ${rows('Market Conditions <span style="font-weight:400;color:#64748b;">(15% wt · analyst-selected)</span>', risk.mc ? risk.mc + ' — ' + crrLevelInfo(risk.mc).name : '—')}
+      ${rows('Overall CRR (weighted avg, rounded)', risk.overall ? risk.overall + ' — ' + risk.info.name : 'Incomplete — not all criteria assessed')}
+      ${rows('Risk Trend', risk.overall >= 7 ? (risk.trend || 'Not specified') : 'N/A (CRR 1–6)')}
+      ${rows('Loan Grade Rationale', risk.rationale)}
     </table>
     <h2>Key Ratio Analysis</h2>
     <table>
@@ -1096,6 +1445,7 @@ function generateMemo() {
       ${m.debtYield >= 7 ? '<li>Debt yield of ' + m.debtYield.toFixed(2) + '% exceeds lender minimum, reducing refinance risk.</li>' : ''}
       ${d.guarantorNetWorth && d.loanAmount && parseFloat(d.guarantorNetWorth) >= parseFloat(d.loanAmount) ? '<li>Guarantor net worth of $' + parseFloat(d.guarantorNetWorth).toLocaleString() + ' exceeds the loan amount, providing meaningful contingent repayment support.</li>' : ''}
       ${d.assignRents && d.assignRents.startsWith('Yes') ? '<li>Assignment of Leases & Rents is in place, strengthening lender collateral position.</li>' : ''}
+      ${risk.overall && risk.overall <= 3 ? '<li>Overall Credit Risk Rating of ' + risk.overall + ' (' + risk.info.name + ') reflects a strong qualitative risk profile.</li>' : ''}
       <li>Property type (${cfg.name}) supported by underwriting guidelines with defined benchmark thresholds.</li>
     </ul>
     <h2>Risks & Mitigants</h2>
@@ -1105,6 +1455,8 @@ function generateMemo() {
       ${m.ltv > 70 ? '<tr><td>LTV of ' + m.ltv.toFixed(1) + '% exceeds 70% preferred maximum.</td><td>Require additional equity contribution or mortgage insurance.</td></tr>' : ''}
       ${d.guarantyType === 'Non-Recourse (No Carve-Outs)' ? '<tr><td>Loan is fully non-recourse with no carve-outs.</td><td>Confirm collateral value and reserves are sufficient to cover full loan basis absent guarantor support.</td></tr>' : ''}
       ${d.guarantorNetWorth && d.loanAmount && parseFloat(d.guarantorNetWorth) < parseFloat(d.loanAmount) ? '<tr><td>Guarantor net worth is below the loan amount.</td><td>Consider additional guarantors, a corporate guaranty, or credit enhancement (LC, cash reserve).</td></tr>' : ''}
+      ${risk.overall >= 7 ? '<tr><td>Overall Credit Risk Rating of ' + risk.overall + ' (' + risk.info.name + ') indicates elevated qualitative risk.</td><td>Escalate to special assets / workout group for enhanced monitoring; reassess collateral and guarantor support.</td></tr>' : ''}
+      ${!risk.overall ? '<tr><td>Credit Risk Rating assessment is incomplete.</td><td>Complete the Financial Flexibility, Market Conditions, and Repayment Behavior selections to finalize the CRR.</td></tr>' : ''}
       <tr><td>Income based on borrower-provided financials, not yet verified.</td><td>Require full rent roll, 12-month operating statement, and independent MAI appraisal.</td></tr>
       <tr><td>Market and interest rate risk over loan term.</td><td>Structure interest rate cap or swap if floating rate. Stress test at +200bps.</td></tr>
     </table>
@@ -1122,6 +1474,7 @@ function generateMemo() {
     </table>
     <h2>Preliminary Recommendation</h2>
     <p><strong>${rec}</strong></p>
+    <p style="margin-top:8px;">${risk.overall ? 'Overall Credit Risk Rating (CRR): <strong>' + risk.overall + ' — ' + risk.info.name + '</strong>. This qualitative rating should be read alongside the quantitative recommendation above.' : 'Note: The Credit Risk Rating assessment has not been completed for this file.'}</p>
     <p style="font-size:12px;color:#64748b;margin-top:10px;">This memo is system-generated for demo purposes. All inputs should be verified against third-party sources prior to credit committee presentation.</p>
   </div>`;
 
